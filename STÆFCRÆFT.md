@@ -25,7 +25,7 @@ The **Runescript Forge** is a web-based composition tool for writing and validat
 - Plain-English translation of every clause
 - One-click copy of the script string or its translation
 
-Access it at: [https://cg573.github.io/Runescript_Forge/](https://cg573.github.io/Runescript_Forge/)
+Access it at: `[your GitHub Pages URL]`
 
 ---
 
@@ -99,7 +99,7 @@ Runes belong to one of four **classes**. A valid clause body must contain at lea
 | ᛞ | Drān | Draw / pull toward — extract something from a source |
 | ᚠ | Fær | Transfer / move from one entity to another |
 | ᚱ | Rād | Read / sense / detect — produces a value into Ōs |
-| ᛈ | Bind | Attach / mark / flag — writes a persistent state onto the target noun |
+| ᛈ | Wrītan | Attach / mark / flag — inscribes a persistent mark onto the target noun |
 | ᛖ | Ec | Amplify / multiply — scales a value upward |
 | ᛏ | Tām | Suppress / dampen — scales a value downward, or silences an effect |
 
@@ -111,11 +111,11 @@ Runes belong to one of four **classes**. A valid clause body must contain at lea
 
 | Rune | Name | Fires when... |
 |------|------|---------------|
-| ᚩ | On-hit | The projectile contacts a target |
-| ᚳ | Crit | The projectile strikes a vital zone |
-| ᚪ | Aim | The wielder is actively sighting |
+| ᚩ | Hrīnan | The projectile contacts a target |
+| ᚳ | Þyrel | The projectile strikes a vital zone |
+| ᚪ | Sēon | The wielder is actively sighting |
 | ᛝ | Ing | The immediately prior clause succeeded (chain gate) |
-| ᚸ | Mǣrk | There is an active Bind mark in this activation cycle |
+| ᚸ | Mǣrk | There is an active Wrītan mark in this activation cycle |
 
 #### Negation — ᚾ Niht
 
@@ -125,14 +125,14 @@ Any conditional may be negated by placing ᚾ (Niht) immediately after it, befor
 |------|---------|
 | `ᛝ → …` | If the prior clause succeeded |
 | `ᛝᚾ → …` | If the prior clause did NOT succeed (else) |
-| `ᚸ → …` | If there is an active Bind mark |
-| `ᚸᚾ → …` | If there is NO active Bind mark |
+| `ᚸ → …` | If there is an active Wrītan mark |
+| `ᚸᚾ → …` | If there is NO active Wrītan mark |
 
 This enables **if / else-if / else** branching across consecutive clauses:
 
 ```
-ᚸ  → …     if primed
-ᚸᚾ → …     else if (not primed, but something else holds)
+ᚸ  → …     if marked
+ᚸᚾ → …     else if (not marked, but something else holds)
 ᛝᚾ → …     else
 ```
 
@@ -188,7 +188,7 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *On hit — suppress the blood / living tissue* |
+| §1 | *Hrīnan — suppress the blood / living tissue* |
 
 **Notes:** A single clause. No state, no chaining. The Tām rune dampens whatever force reaches living tissue on impact. Suitable for a shield boss or armour plate. The simplest possible Stæfcræft binding — one gate, one operation, one noun.
 
@@ -196,7 +196,7 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 ### 2 — A Detection Scope
 
-**Intent:** While aiming, read the life force of whatever is in the reticle and display it to the wielder.
+**Intent:** While sighting, read the life force of whatever is in the reticle and display it to the wielder.
 
 ```
 ᚪ→ᚱᛚᚫ ‖ ᛝ→ᚠᛟᚹ
@@ -204,10 +204,10 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *While aiming — read the life force of the aimed-at target* |
+| §1 | *Sēon — read the life force of the aimed-at target* |
 | §2 | *If §1 succeeded — transfer the result to the wielder* |
 
-**Notes:** §2's Ing gate is essential. Without it, §2 fires unconditionally — and if §1 read nothing (the wielder is aimed at a wall), Ōs is empty, and the Fær has no value to deliver. The Ing gate makes §2 a null-safe consumer of §1's output. The wielder perceives the reading as a health aura on the target.
+**Notes:** §2's Ing gate is essential. Without it, §2 fires unconditionally — and if §1 read nothing (the wielder is sighting a wall), Ōs is empty, and the Fær has no value to deliver. The Ing gate makes §2 a null-safe consumer of §1's output. The wielder perceives the reading as a health aura on the target.
 
 ---
 
@@ -221,7 +221,7 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *On hit — draw the life force from the struck target* |
+| §1 | *Hrīnan — draw the life force from the struck target* |
 | §2 | *If §1 succeeded — transfer the result to the wielder, at reduced potency* |
 
 **Notes:** Lyt on §2 nerfs the return — the full drain is extracted from the target, but the wielder only receives a fraction. The remainder disperses. This is the simplest vampyric binding. Note that Tām scoring over the Drān rune in the metal can further suppress the drain at the source; the script and the carving work together.
@@ -230,7 +230,7 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 ### 4 — A Scoped Primer (Scope-to-Barrel Handshake)
 
-**Intent:** While aiming, mark the chambered projectile so the barrel knows the shot was scoped.
+**Intent:** While sighting, mark the chambered projectile so the barrel knows the shot was scoped.
 
 ```
 ᚪ → ᛈ ᚦ
@@ -238,13 +238,13 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *While aiming — mark the projectile* |
+| §1 | *Sēon — mark the projectile* |
 
-**Notes:** A single-clause cross-component signal. The scope runs this binding continuously while the eye is at the glass. The Bind mark is written onto the projectile (Þing) and persists until the projectile fires. The barrel's script reads this mark via ᚸ (Mǣrk) — which checks only whether an active mark exists, not what carries it. Hip-fired shots bypass the scope entirely — ᚪ never fires — so no mark is written and ᚸ returns false.
+**Notes:** A single-clause cross-component signal. The scope runs this binding continuously while the eye is at the glass. The Wrītan mark is inscribed onto the projectile (Þing) and persists until the projectile fires. The barrel's script reads this mark via ᚸ (Mǣrk) — which checks only whether an active mark exists, not what carries it. Hip-fired shots bypass the scope entirely — Sēon never fires — so no mark is written and Mǣrk returns false.
 
 ---
 
-### 5 — A Marking Blade (Bind / Mǣrk / Tācn in practice)
+### 5 — A Marking Blade (Wrītan / Mǣrk / Tācn in practice)
 
 **Intent:** On a critical strike, mark the target. On the next hit against any marked target, drain their life force.
 
@@ -254,11 +254,11 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *On a critical strike — mark the struck target* |
+| §1 | *Þyrel — mark the struck target* |
 | §2 | *If an active mark exists — drain the life force from the marked entity* |
 | §3 | *If §2 succeeded — transfer the result to the wielder* |
 
-**Notes:** This illustrates the Bind / Mǣrk / Tācn trio working as a unit. §1 writes the mark onto Gāst (the struck target) using Bind. §2 uses ᚸ to check whether that mark is active — not which entity carries it — and then uses ᛠ Tācn to resolve the marked entity as the subject of the drain. §3 chains the result to the wielder. The mark persists across separate hits, making this pattern useful for two-weapon setups, delayed effects, or multi-round debuffs.
+**Notes:** This illustrates the Wrītan / Mǣrk / Tācn trio working as a unit. §1 inscribes the mark onto Gāst (the struck target) using Wrītan. §2 uses Mǣrk to check whether that mark is active — not which entity carries it — and then uses ᛠ Tācn to resolve the marked entity as the subject of the drain. §3 chains the result to the wielder. The mark persists across separate hits, making this pattern useful for two-weapon setups, delayed effects, or multi-round debuffs.
 
 ---
 
@@ -272,10 +272,10 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 
 | | |
 |--|--|
-| §1 | *While aiming — read the life force of the aimed-at target* |
+| §1 | *Sēon — read the life force of the aimed-at target* |
 | §2 | *If §1 succeeded — transfer the result to the wielder* |
-| §3 | *While aiming — mark the projectile* |
-| §4 | *On hit — draw the life force from the struck target* |
+| §3 | *Sēon — mark the projectile* |
+| §4 | *Hrīnan — draw the life force from the struck target* |
 | §5 | *If an active mark exists — amplify the prior result, at reduced potency* |
 | §6 | *If §5 succeeded — transfer the result to the wielder* |
 | §7 | *If no active mark — transfer the result to the wielder* |
@@ -292,10 +292,10 @@ Scoped, hits living:    §1 fires   §2 fires  §3 fires  §4 fires §5 fires  �
 **Design notes:**
 
 - §1–2 are the **scope module**: continuous life-detection feeding perception. Logically independent of the barrel.
-- §3 is the **handshake**: the scope writes a Bind mark onto the projectile (Þing). This is the only cross-component communication in the script.
+- §3 is the **handshake**: Sēon writes a Wrītan mark onto the projectile (Þing). This is the only cross-component communication in the script.
 - §4 is the **core barrel enchantment**: vampyric drain on impact. The Tām scoring on the Drān rune in the barrel metal suppresses the raw extraction to a non-lethal level — a physical annotation, not a script clause.
-- §5 checks ᚸ Mǣrk — *is there an active mark?* Since the only Bind in this script was written onto Þing in §3, and §3 only fires while scoped, the mark is present only on scoped shots. ᛠ Tācn is not needed here because §5 amplifies Ōs (a value), not the marked entity itself.
-- §5–7 form the **routing fork**: ᚸ and ᚸᚾ are mutually exclusive by definition. Exactly one fires per hit that reaches §4. §6 depends on §5 via Ing, properly chaining the boosted path. §7 catches all unprimed hits and delivers the base drain directly.
+- §5 checks Mǣrk — *is there an active mark?* Since the only Wrītan in this script fires in §3, and §3 only fires while Sēon is active, the mark is present only on scoped shots. ᛠ Tācn is not needed here because §5 amplifies Ōs (a value), not the marked entity itself.
+- §5–7 form the **routing fork**: ᚸ and ᚸᚾ are mutually exclusive by definition. Exactly one fires per hit that reaches §4. §6 depends on §5 via Ing, properly chaining the boosted path. §7 catches all unmarked hits and delivers the base drain directly.
 
 This binding is physically split across two objects — the scope and the barrel — but written as a single unified script. The cræfter must ensure both components share the same attunement signature, or the Mǣrk check in §5 may respond to marks written by other active bindings in proximity.
 
@@ -309,7 +309,7 @@ This binding is physically split across two objects — the scope and the barrel
 
 **Buffer registers:** Crystalline materials (particularly translucent minerals with internal fault-line channels) function as persistent Ōs buffers. A scope stone does not just transmit the Rād result — it holds it briefly, long enough for the paired Fær to consume it on the next instruction cycle. Polished crystal loses this property; the natural fault lines are the conductive medium.
 
-**Cross-component bindings:** When a single script spans multiple physical objects, the objects must be attuned to the same activation signature during the carving ritual. Unattached components read Bind marks from any source — a second primed weapon in proximity will contaminate the Mǣrk check. Professional artificers use a unique attunement mark (an additional Bind sub-glyph specific to that weapon pairing) to scope the check.
+**Cross-component bindings:** When a single script spans multiple physical objects, the objects must be attuned to the same activation signature during the carving ritual. Unattached components read Wrītan marks from any source — a second marked weapon in proximity will contaminate the Mǣrk check. Professional artificers use a unique attunement mark (an additional Wrītan sub-glyph specific to that weapon pairing) to scope the check.
 
 ---
 
@@ -322,8 +322,8 @@ This binding is physically split across two objects — the scope and the barrel
 | **Binding** | A complete Runescript program carved into an object |
 | **Clause** | A single conditional-and-operation unit within a binding |
 | **Ōs register** | The implicit return-value slot that passes the output of one clause to the next |
-| **Tācn reference** | The implicit entity handle that resolves to whatever currently carries an active Bind mark |
+| **Tācn reference** | The implicit entity handle that resolves to whatever currently carries an active Wrītan mark |
 | **Scoring** | The practice of carving one rune over another to suppress its output |
-| **Handshake** | A Bind-and-Mǣrk pair used to pass state between two physically separate components |
+| **Handshake** | A Wrītan-and-Mǣrk pair used to pass state between two physically separate components |
 | **Stæfcræfter** | A practitioner of Stæfcræft |
 | **Dead branch** | A clause whose conditional can never fire — usually an Ing gating a clause whose predecessor is also permanently gated off |
