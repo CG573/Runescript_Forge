@@ -25,7 +25,7 @@ The **Runescript Forge** is a web-based composition tool for writing and validat
 - Plain-English translation of every clause
 - One-click copy of the script string or its translation
 
-Access it at: `[your GitHub Pages URL]`
+Access it at: [https://cg573.github.io/Runescript_Forge/](https://cg573.github.io/Runescript_Forge/)
 
 ---
 
