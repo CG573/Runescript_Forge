@@ -82,10 +82,13 @@ Runes belong to one of four **classes**. A valid clause body must contain at lea
 | ᚷ | Gāst | A target struck by the projectile (post-impact) |
 | ᚫ | Āna | The aimed-at target / target in the reticle (pre-impact) |
 | ᛟ | Ōs | The return value of the prior verb — the result register |
+| ᛠ | Tācn | The marked entity / bearer of the active Bind mark |
 
 > **Gāst vs Āna:** This distinction matters. Gāst is only valid after a hit has occurred — it refers to something already struck. Āna is the target as seen through a scope or detection effect, before any impact. Using Gāst in a pre-hit clause is a semantic error the linter will not catch; it is the cræfter's responsibility.
 
 > **Ōs:** Ōs is a reference, not a stored value. It holds whatever the immediately preceding verb produced. If the preceding clause was skipped (its conditional failed), Ōs is empty, and any clause consuming it should be gated with ᛝ (Ing) to avoid operating on a null register.
+
+> **Tācn:** Tācn resolves to whichever entity currently carries a Bind mark written during this activation cycle. It is an entity handle, not a value — Fær can deliver *to* Tācn, Drān can pull *from* Tācn. If no Bind mark is active, Tācn is undefined; always gate clauses using Tācn with ᚸ (Mǣrk). Tācn, Ōs, and Mǣrk form a natural trio: **ᛈ Bind writes a mark** onto a noun, **ᚸ Mǣrk checks** whether any active mark exists, and **ᛠ Tācn references** the entity carrying it.
 
 ---
 
@@ -112,7 +115,7 @@ Runes belong to one of four **classes**. A valid clause body must contain at lea
 | ᚳ | Crit | The projectile strikes a vital zone |
 | ᚪ | Aim | The wielder is actively sighting |
 | ᛝ | Ing | The immediately prior clause succeeded (chain gate) |
-| ᚸ | Mǣrk | The projectile carries a Bind mark (prime check) |
+| ᚸ | Mǣrk | There is an active Bind mark in this activation cycle |
 
 #### Negation — ᚾ Niht
 
@@ -122,8 +125,8 @@ Any conditional may be negated by placing ᚾ (Niht) immediately after it, befor
 |------|---------|
 | `ᛝ → …` | If the prior clause succeeded |
 | `ᛝᚾ → …` | If the prior clause did NOT succeed (else) |
-| `ᚸ → …` | If the projectile is primed |
-| `ᚸᚾ → …` | If the projectile is NOT primed |
+| `ᚸ → …` | If there is an active Bind mark |
+| `ᚸᚾ → …` | If there is NO active Bind mark |
 
 This enables **if / else-if / else** branching across consecutive clauses:
 
@@ -237,11 +240,29 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 |--|--|
 | §1 | *While aiming — mark the projectile* |
 
-**Notes:** This is a single-clause cross-component signal. The scope runs this binding continuously while the eye is at the glass. The Bind mark is written onto the projectile (Þing) and persists until the projectile fires. The barrel's script reads this mark via ᚸ (Mǣrk). Hip-fired shots bypass the scope entirely — ᚪ never fires — so the projectile carries no mark.
+**Notes:** A single-clause cross-component signal. The scope runs this binding continuously while the eye is at the glass. The Bind mark is written onto the projectile (Þing) and persists until the projectile fires. The barrel's script reads this mark via ᚸ (Mǣrk) — which checks only whether an active mark exists, not what carries it. Hip-fired shots bypass the scope entirely — ᚪ never fires — so no mark is written and ᚸ returns false.
 
 ---
 
-### 5 — The Vampyric Rifle (Full Pipeline)
+### 5 — A Marking Blade (Bind / Mǣrk / Tācn in practice)
+
+**Intent:** On a critical strike, mark the target. On the next hit against any marked target, drain their life force.
+
+```
+ᚳ→ᛈᚷ ‖ ᚸ→ᛞᛚᛠ ‖ ᛝ→ᚠᛟᚹ
+```
+
+| | |
+|--|--|
+| §1 | *On a critical strike — mark the struck target* |
+| §2 | *If an active mark exists — drain the life force from the marked entity* |
+| §3 | *If §2 succeeded — transfer the result to the wielder* |
+
+**Notes:** This illustrates the Bind / Mǣrk / Tācn trio working as a unit. §1 writes the mark onto Gāst (the struck target) using Bind. §2 uses ᚸ to check whether that mark is active — not which entity carries it — and then uses ᛠ Tācn to resolve the marked entity as the subject of the drain. §3 chains the result to the wielder. The mark persists across separate hits, making this pattern useful for two-weapon setups, delayed effects, or multi-round debuffs.
+
+---
+
+### 6 — The Vampyric Rifle (Full Pipeline)
 
 **Intent:** A rifle with a vampyric-enchanted barrel and a life-detecting scope. The scope reads the target's health as an aura. When fired scoped, the drain is amplified and returned to the wielder as healing. When fired from the hip, only the base drain is returned.
 
@@ -255,27 +276,28 @@ The Runescript Forge enforces these rules automatically. Cræfters working from 
 | §2 | *If §1 succeeded — transfer the result to the wielder* |
 | §3 | *While aiming — mark the projectile* |
 | §4 | *On hit — draw the life force from the struck target* |
-| §5 | *If primed — amplify the prior result, at reduced potency* |
+| §5 | *If an active mark exists — amplify the prior result, at reduced potency* |
 | §6 | *If §5 succeeded — transfer the result to the wielder* |
-| §7 | *If NOT primed — transfer the result to the wielder* |
+| §7 | *If no active mark — transfer the result to the wielder* |
 
 **Execution paths:**
 
 ```
-Hip-fire, miss:         §1–3 skip  §4 skip    §5–7 skip    → nothing
-Hip-fire, hits living:  §1–3 skip  §4 fires   §5 skip  §6 skip  §7 fires  → base heal
-Scoped, aimed at wall:  §1 fires   §2 skip    §3 fires   §4 skip   §5–7 skip  → aura only
-Scoped, hits living:    §1 fires   §2 fires   §3 fires   §4 fires  §5 fires  §6 fires  §7 skip  → aura + boosted heal
+Hip-fire, miss:         §1–3 skip  §4 skip   §5–7 skip                   → nothing
+Hip-fire, hits living:  §1–3 skip  §4 fires  §5 skip  §6 skip  §7 fires  → base heal
+Scoped, aimed at wall:  §1 fires   §2 skip   §3 fires  §4 skip  §5–7 skip → aura only
+Scoped, hits living:    §1 fires   §2 fires  §3 fires  §4 fires §5 fires  §6 fires  §7 skip  → aura + boosted heal
 ```
 
 **Design notes:**
 
-- §1–2 are the **scope module**: continuous life-detection feeding perception. These are logically independent of the barrel.
-- §3 is the **handshake**: the scope writes a flag onto the projectile. This is the only cross-component communication.
-- §4 is the **core barrel enchantment**: vampyric drain. The Tām scoring on the Drān rune in the barrel suppresses the raw extraction to a non-lethal level.
-- §5–7 are the **routing fork**: ᚸ and ᚸᚾ are mutually exclusive. Exactly one fires per hit. §6 depends on §5 via Ing, so the boosted path is properly chained. §7 catches all unprimed hits and delivers the base result directly.
+- §1–2 are the **scope module**: continuous life-detection feeding perception. Logically independent of the barrel.
+- §3 is the **handshake**: the scope writes a Bind mark onto the projectile (Þing). This is the only cross-component communication in the script.
+- §4 is the **core barrel enchantment**: vampyric drain on impact. The Tām scoring on the Drān rune in the barrel metal suppresses the raw extraction to a non-lethal level — a physical annotation, not a script clause.
+- §5 checks ᚸ Mǣrk — *is there an active mark?* Since the only Bind in this script was written onto Þing in §3, and §3 only fires while scoped, the mark is present only on scoped shots. ᛠ Tācn is not needed here because §5 amplifies Ōs (a value), not the marked entity itself.
+- §5–7 form the **routing fork**: ᚸ and ᚸᚾ are mutually exclusive by definition. Exactly one fires per hit that reaches §4. §6 depends on §5 via Ing, properly chaining the boosted path. §7 catches all unprimed hits and delivers the base drain directly.
 
-This binding is physically split across two objects — the scope and the barrel — but written as a single unified script. The cræfter must ensure both components are carved from the same master script, or the Mǣrk check in §5 will never find a corresponding Bind in §3.
+This binding is physically split across two objects — the scope and the barrel — but written as a single unified script. The cræfter must ensure both components share the same attunement signature, or the Mǣrk check in §5 may respond to marks written by other active bindings in proximity.
 
 ---
 
@@ -300,6 +322,7 @@ This binding is physically split across two objects — the scope and the barrel
 | **Binding** | A complete Runescript program carved into an object |
 | **Clause** | A single conditional-and-operation unit within a binding |
 | **Ōs register** | The implicit return-value slot that passes the output of one clause to the next |
+| **Tācn reference** | The implicit entity handle that resolves to whatever currently carries an active Bind mark |
 | **Scoring** | The practice of carving one rune over another to suppress its output |
 | **Handshake** | A Bind-and-Mǣrk pair used to pass state between two physically separate components |
 | **Stæfcræfter** | A practitioner of Stæfcræft |

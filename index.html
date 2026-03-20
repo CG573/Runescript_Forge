@@ -608,6 +608,7 @@ const RUNES = {
     { char:'ᚷ', name:'Gāst', meaning:'Target struck by projectile' },
     { char:'ᚫ', name:'Āna',  meaning:'Aimed-at target / target in reticle (pre-hit)' },
     { char:'ᛟ', name:'Ōs',   meaning:'Result / return value of the prior verb' },
+    { char:'ᛠ', name:'Tācn', meaning:'The marked entity / bearer of the active Bind mark' },
   ],
   verbs: [
     { char:'ᛞ', name:'Drān', meaning:'Draw / pull toward' },
@@ -622,7 +623,7 @@ const RUNES = {
     { char:'ᚳ', name:'Crit',   meaning:'When striking a vital zone' },
     { char:'ᚪ', name:'Aim',    meaning:'While wielder is actively sighting' },
     { char:'ᛝ', name:'Ing',    meaning:'If the prior clause already fired' },
-    { char:'ᚸ', name:'Mǣrk',  meaning:'If the projectile carries a Bind mark' },
+    { char:'ᚸ', name:'Mǣrk',  meaning:'If there is an active Bind mark in this activation cycle' },
   ],
   modifiers: [
     { char:'ᛁ', name:'Lyt',   meaning:'Small / fractional (~25%)' },
@@ -645,12 +646,12 @@ const COND_PHRASE = {
   'Crit':       'On a critical strike',
   'Aim':        'While actively sighting',
   'Ing':        'If the prior clause succeeded',
-  'Mǣrk':      'If the projectile is primed (carries a Bind mark)',
+  'Mǣrk':      'If there is an active Bind mark',
   'On-hit+neg': 'If the projectile did NOT strike a target',
   'Crit+neg':   'If the strike was NOT critical',
   'Aim+neg':    'If the wielder is NOT sighting',
   'Ing+neg':    'If the prior clause did NOT succeed (else)',
-  'Mǣrk+neg':  'If the projectile is NOT primed (else)',
+  'Mǣrk+neg':  'If there is NO active Bind mark',
 };
 
 const VERB_TEMPLATE = {
@@ -671,6 +672,7 @@ const NOUN_PHRASE = {
   'Gāst': 'the struck target',
   'Āna':  'the aimed-at target',
   'Ōs':   'the prior result',
+  'Tācn': 'the marked entity',
 };
 
 const MOD_PHRASE = {
