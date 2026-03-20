@@ -24,13 +24,3 @@ Scripts follow this pattern per clause:
 - **Modifiers** (green) scale or alter the verb's output.
 
 Multiple clauses chain together. Use the `Ing` conditional to make a clause fire only if the previous one succeeded — this is your null-check / chained gate.
-
-## Hosting on GitHub Pages
-
-1. Create a new GitHub repository
-2. Add this `index.html` to the root
-3. Go to **Settings → Pages**
-4. Under **Source**, select `main` branch, `/ (root)` folder
-5. Click **Save** — your site will be live at `https://yourusername.github.io/repo-name`
-
-No build step, no dependencies, no Node. It's a single file.
