@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Runescript Forge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b22;
+      --bg3:      #21262d;
+      --bg4:      #30363d;
+      --border:   #30363d;
+      --border2:  #444c56;
+      --text:     #e6edf3;
+      --text-mid: #8b949e;
+      --text-dim: #484f58;
+      --accent:   #58a6ff;
+
+      --noun-bg:  rgba(56, 139, 253, 0.1);
+      --noun-bdr: rgba(56, 139, 253, 0.3);
+      --noun-txt: #79c0ff;
+
+      --verb-bg:  rgba(210, 153, 34, 0.1);
+      --verb-bdr: rgba(210, 153, 34, 0.3);
+      --verb-txt: #e3b341;
+
+      --cond-bg:  rgba(248, 81, 73, 0.1);
+      --cond-bdr: rgba(248, 81, 73, 0.3);
+      --cond-txt: #ff7b72;
+
+      --mod-bg:   rgba(63, 185, 80, 0.1);
+      --mod-bdr:  rgba(63, 185, 80, 0.3);
+      --mod-txt:  #56d364;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── LAYOUT ── */
+
+    .wrap {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px 48px;
+    }
+
+    /* ── HEADER ── */
+
+    header {
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    header h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    header h1 span { color: var(--text-mid); font-weight: 400; }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    /* ── GRID ── */
+
+    .grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* ── PANEL ── */
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .ph {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ph-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-mid);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── PALETTE ── */
+
+    .palette { position: sticky; top: 16px; }
+
+    .palette-scroll {
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+    }
+
+    .palette-scroll::-webkit-scrollbar { width: 4px; }
+    .palette-scroll::-webkit-scrollbar-track { background: transparent; }
+    .palette-scroll::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
+
+    .rune-section {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rune-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+
+    .section-label.noun { color: var(--noun-txt); }
+    .section-label.verb { color: var(--verb-txt); }
+    .section-label.cond { color: var(--cond-txt); }
+    .section-label.mod  { color: var(--mod-txt);  }
+
+    .rune-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .rune-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid transparent;
+      transition: filter 0.1s, transform 0.1s;
+    }
+
+    .rune-pill.noun { background: var(--noun-bg); border-color: var(--noun-bdr); color: var(--noun-txt); }
+    .rune-pill.verb { background: var(--verb-bg); border-color: var(--verb-bdr); color: var(--verb-txt); }
+    .rune-pill.cond { background: var(--cond-bg); border-color: var(--cond-bdr); color: var(--cond-txt); }
+    .rune-pill.mod  { background: var(--mod-bg);  border-color: var(--mod-bdr);  color: var(--mod-txt);  }
+
+    .rune-pill:hover  { filter: brightness(1.2); transform: translateY(-1px); }
+    .rune-pill:active { transform: scale(0.96); }
+
+    .rpchar {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .rpname {
+      font-size: 0.65rem;
+      font-weight: 500;
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── SHARED TOOLTIP ── */
+
+    #tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.12s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    #tooltip.visible { opacity: 1; }
+
+    /* ── RIGHT COL ── */
+
+    .right-col { display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── BUILDER ── */
+
+    .builder-body { padding: 12px 12px 6px; min-height: 100px; }
+
+    .clause-wrap { display: flex; flex-direction: column; }
+
+    .clause-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+
+    .clause-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      min-width: 20px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .clause-track {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 42px;
+      padding: 5px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: border-color 0.12s;
+      position: relative;
+    }
+
+    .clause-track.is-active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(88,166,255,0.12);
+    }
+
+    .clause-track.is-empty::before {
+      content: attr(data-hint);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      font-style: italic;
+      pointer-events: none;
+    }
+
+    .rblock {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      animation: bIn 0.12s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    @keyframes bIn {
+      from { opacity: 0; transform: scale(0.75); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .rblock.noun { background: var(--noun-bg); border: 1px solid var(--noun-bdr); color: var(--noun-txt); }
+    .rblock.verb { background: var(--verb-bg); border: 1px solid var(--verb-bdr); color: var(--verb-txt); }
+    .rblock.cond { background: var(--cond-bg); border: 1px solid var(--cond-bdr); color: var(--cond-txt); }
+    .rblock.mod  { background: var(--mod-bg);  border: 1px solid var(--mod-bdr);  color: var(--mod-txt);  }
+
+    /* Niht used as negation operator — visually attached to preceding conditional */
+    .rblock.rblock-neg {
+      margin-left: -6px;
+      border-left-color: transparent;
+      border-radius: 0 4px 4px 0;
+      opacity: 0.85;
+    }
+    .rblock.cond:has(+ .rblock-neg) {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .rblock-char {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .rblock-name {
+      font-size: 0.62rem;
+      font-weight: 500;
+      opacity: 0.75;
+    }
+
+    .rblock-del {
+      background: none; border: none;
+      color: currentColor; opacity: 0.35;
+      cursor: pointer; font-size: 0.6rem;
+      padding: 0; line-height: 1;
+      margin-left: 1px;
+      transition: opacity 0.1s;
+    }
+    .rblock-del:hover { opacity: 1; }
+
+    .arrow-sep {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .drag-handle {
+      display: flex; align-items: center; justify-content: center;
+      width: 16px; flex-shrink: 0;
+      color: var(--text-dim);
+      cursor: grab;
+      font-size: 0.85rem;
+      opacity: 0.4;
+      transition: opacity 0.1s;
+      user-select: none;
+    }
+    .drag-handle:active { cursor: grabbing; }
+    .clause-row:hover .drag-handle { opacity: 0.8; }
+
+    .clause-row.dragging { opacity: 0.4; }
+    .clause-row.drag-over .clause-track { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(88,166,255,0.2); }
+
+    .clause-errors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 2px 0 2px 62px; /* align under track */
+    }
+
+    .err-tag {
+      font-size: 0.67rem;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .err-tag.error   { background: rgba(248,81,73,0.12); border: 1px solid rgba(248,81,73,0.3); color: #ff7b72; }
+    .err-tag.warning { background: rgba(210,153,34,0.12); border: 1px solid rgba(210,153,34,0.3); color: #e3b341; }
+
+    .clause-track.has-error   { border-color: rgba(248,81,73,0.5); }
+    .clause-track.has-warning { border-color: rgba(210,153,34,0.4); }
+
+    .clause-btns { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .icn-btn {
+      width: 26px; height: 26px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.1s;
+    }
+
+    .icn-btn:hover { border-color: var(--border2); color: var(--text); }
+    .icn-btn.on { border-color: var(--accent); color: var(--accent); }
+    .icn-btn:disabled { opacity: 0.2; pointer-events: none; }
+
+    .clause-sep {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 2px 0 2px 28px;
+    }
+
+    .sep-line { flex: 1; height: 1px; background: var(--border); }
+
+    .sep-glyph {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .add-clause-row { padding: 6px 12px 12px; }
+
+    .add-clause-btn {
+      background: none;
+      border: 1px dashed var(--border);
+      color: var(--text-dim);
+      padding: 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.1s;
+      width: 100%;
+    }
+
+    .add-clause-btn:hover { border-color: var(--border2); color: var(--text-mid); }
+
+    /* ── OUTPUT ── */
+
+    .output-body { padding: 14px; }
+
+    .script-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.65rem;
+      letter-spacing: 0.15em;
+      color: var(--text);
+      min-height: 44px;
+      margin-bottom: 14px;
+      word-break: break-all;
+    }
+
+    .script-display.empty {
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      font-style: italic;
+      color: var(--text-dim);
+      letter-spacing: normal;
+    }
+
+    .trans-block {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .trans-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .trans-clause {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-mid);
+      padding: 4px 0;
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .trans-clause:last-child { border-bottom: none; }
+
+    .trans-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .trans-cond { color: var(--cond-txt); font-style: italic; }
+
+    .output-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .action-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      padding: 5px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.1s;
+    }
+
+    .action-btn:hover { border-color: var(--border2); color: var(--text); }
+    .action-btn.primary { border-color: var(--accent); color: var(--accent); }
+    .action-btn.primary:hover { background: rgba(88,166,255,0.08); }
+
+    /* ── TOAST ── */
+
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      z-index: 1000;
+      animation: toastIn 0.15s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .palette { position: static; }
+      .palette-scroll { max-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Tooltip lives at root — never clipped by any scroll container -->
+<div id="tooltip"></div>
+
+<div class="wrap">
+
+  <header>
+    <h1>⚒ Runescript Forge <span>/ stæfcræft notation tool</span></h1>
+    <p>Select a clause · click runes to build · read the output</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- PALETTE -->
+    <aside>
+      <div class="panel palette">
+        <div class="ph"><span class="ph-title">Rune Lexicon</span></div>
+        <div class="palette-scroll">
+          <div class="rune-section">
+            <div class="section-label noun">Nouns</div>
+            <div class="rune-grid" id="pn"></div>
+          </div>
+          <div class="rune-section">
+            <div class="section-label verb">Verbs</div>
+            <div class="rune-grid" id="pv"></div>
+          </div>
+          <div class="rune-section">
+            <div class="section-label cond">Conditionals</div>
+            <div class="rune-grid" id="pc"></div>
+          </div>
+          <div class="rune-section">
+            <div class="section-label mod">Modifiers</div>
+            <div class="rune-grid" id="pm"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT -->
+    <div class="right-col">
+
+      <div class="panel">
+        <div class="ph"><span class="ph-title">Script Builder</span></div>
+        <div class="builder-body">
+          <div class="clause-wrap" id="clause-wrap"></div>
+        </div>
+        <div class="add-clause-row">
+          <button class="add-clause-btn" onclick="addClause()">+ Add Clause</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph" style="gap:10px;">
+          <span class="ph-title">Script Output</span>
+          <span id="error-badge" class="err-tag" style="display:none;"></span>
+        </div>
+        <div class="output-body">
+          <div class="script-display empty" id="script-display">No runes placed yet…</div>
+          <div class="trans-block">
+            <div class="trans-label">Translation</div>
+            <div id="trans-text"></div>
+          </div>
+          <div class="output-actions">
+            <button class="action-btn primary" onclick="copyScript()">Copy Script</button>
+            <button class="action-btn" onclick="copyTrans()">Copy Translation</button>
+            <button class="action-btn" onclick="clearAll()">Clear All</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────
+
+const RUNES = {
+  nouns: [
+    { char:'ᛚ', name:'Lif',  meaning:'Life force / HP pool' },
+    { char:'ᛒ', name:'Blōd', meaning:'Blood / living tissue' },
+    { char:'ᛊ', name:'Sāl',  meaning:'Soul / animating essence' },
+    { char:'ᚹ', name:'Wīl',  meaning:'The wielder / user' },
+    { char:'ᚦ', name:'Þing', meaning:'The projectile itself' },
+    { char:'ᚷ', name:'Gāst', meaning:'Target struck by projectile' },
+    { char:'ᚫ', name:'Āna',  meaning:'Aimed-at target / target in reticle (pre-hit)' },
+    { char:'ᛟ', name:'Ōs',   meaning:'Result / return value of the prior verb' },
+  ],
+  verbs: [
+    { char:'ᛞ', name:'Drān', meaning:'Draw / pull toward' },
+    { char:'ᚠ', name:'Fær',  meaning:'Transfer / move A to B' },
+    { char:'ᚱ', name:'Rād',  meaning:'Read / sense / detect' },
+    { char:'ᛈ', name:'Bind', meaning:'Attach / mark / flag for later' },
+    { char:'ᛖ', name:'Ec',   meaning:'Amplify / multiply' },
+    { char:'ᛏ', name:'Tām',  meaning:'Suppress / dampen / nerf' },
+  ],
+  conditionals: [
+    { char:'ᚩ', name:'On-hit', meaning:'When projectile contacts a target' },
+    { char:'ᚳ', name:'Crit',   meaning:'When striking a vital zone' },
+    { char:'ᚪ', name:'Aim',    meaning:'While wielder is actively sighting' },
+    { char:'ᛝ', name:'Ing',    meaning:'If the prior clause already fired' },
+    { char:'ᚸ', name:'Mǣrk',  meaning:'If the projectile carries a Bind mark' },
+  ],
+  modifiers: [
+    { char:'ᛁ', name:'Lyt',   meaning:'Small / fractional (~25%)' },
+    { char:'ᛗ', name:'Micel', meaning:'Large / amplified (~2x)' },
+    { char:'ᚻ', name:'Hwīl',  meaning:'Duration / lingers over time' },
+    { char:'ᚾ', name:'Niht',  meaning:'Inverted / flips verb direction' },
+  ]
+};
+
+const CLS_KEY = { nouns:'noun', verbs:'verb', conditionals:'cond', modifiers:'mod' };
+
+const MAP = {};
+for (const [type, arr] of Object.entries(RUNES)) {
+  const cls = CLS_KEY[type];
+  for (const r of arr) MAP[r.char] = { ...r, cls };
+}
+
+const COND_PHRASE = {
+  'On-hit':     'When the projectile strikes a target',
+  'Crit':       'On a critical strike',
+  'Aim':        'While actively sighting',
+  'Ing':        'If the prior clause succeeded',
+  'Mǣrk':      'If the projectile is primed (carries a Bind mark)',
+  'On-hit+neg': 'If the projectile did NOT strike a target',
+  'Crit+neg':   'If the strike was NOT critical',
+  'Aim+neg':    'If the wielder is NOT sighting',
+  'Ing+neg':    'If the prior clause did NOT succeed (else)',
+  'Mǣrk+neg':  'If the projectile is NOT primed (else)',
+};
+
+const VERB_TEMPLATE = {
+  'Drān': (n1, n2) => `draw ${n1}${n2 ? ` from ${n2}` : ''}`,
+  'Fær':  (n1, n2) => `transfer ${n1}${n2 ? ` to ${n2}` : ''}`,
+  'Rād':  (n1, n2) => `read / sense ${n1}${n2 ? ` of ${n2}` : ''}`,
+  'Bind': (n1, n2) => `mark ${n2 || n1}${n2 ? ` with [${n1}]` : ''}`,
+  'Ec':   (n1, n2) => `amplify ${n1}${n2 ? ` toward ${n2}` : ''}`,
+  'Tām':  (n1, n2) => `suppress ${n1}${n2 ? ` affecting ${n2}` : ''}`,
+};
+
+const NOUN_PHRASE = {
+  'Lif':  'the life force',
+  'Blōd': 'the blood / living tissue',
+  'Sāl':  'the soul',
+  'Wīl':  'the wielder',
+  'Þing': 'the projectile',
+  'Gāst': 'the struck target',
+  'Āna':  'the aimed-at target',
+  'Ōs':   'the prior result',
+};
+
+const MOD_PHRASE = {
+  'Lyt':  'at reduced potency (~25%)',
+  'Micel':'at amplified potency (~2x)',
+  'Hwīl': 'sustained over time',
+  'Niht': 'in the inverted direction',
+};
+
+// ── STATE ────────────────────────────────────────────────────────────
+
+let clauses  = [[]];
+let active   = 0;
+let dragFrom = null;
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+
+// True when clause starts with [cond][Niht] — a negated conditional
+function isNegCond(clause) {
+  return clause.length >= 2
+    && MAP[clause[0]]?.cls === 'cond'
+    && MAP[clause[1]]?.name === 'Niht';
+}
+
+// Returns the body of a clause (everything after the conditional / cond+Niht)
+function clauseBody(clause) {
+  const parts = clause.map(c => MAP[c]).filter(Boolean);
+  if (parts.length === 0) return [];
+  if (parts[0]?.cls !== 'cond') return parts;
+  return isNegCond(clause) ? parts.slice(2) : parts.slice(1);
+}
+
+// ── LINTER ───────────────────────────────────────────────────────────
+
+function lintClause(clause, ci) {
+  const issues = [];
+  if (clause.length === 0) return issues;
+
+  const parts  = clause.map(c => MAP[c]).filter(Boolean);
+  const negated = isNegCond(clause);
+
+  const conds = parts.filter(p => p.cls === 'cond');
+  const verbs = parts.filter(p => p.cls === 'verb');
+  const nouns = parts.filter(p => p.cls === 'noun');
+  // Niht in position 1 after a cond is a negation operator, not a body modifier
+  const mods  = parts.filter((p, i) => p.cls === 'mod' && !(negated && i === 1));
+
+  if (conds.length > 1)
+    issues.push({ level:'error', msg:'Only one conditional per clause' });
+
+  if (conds.length === 1 && parts[0].cls !== 'cond')
+    issues.push({ level:'error', msg:'Conditional must be first in the clause' });
+
+  if (conds.some(c => c.name === 'Ing' || c.name === 'Mǣrk') && ci === 0)
+    issues.push({ level:'error', msg:'Ing / Mǣrk have no prior clause to reference' });
+
+  // ᛝᚾ (else) on clause 0 is also invalid
+  if (negated && conds.some(c => c.name === 'Ing') && ci === 0)
+    issues.push({ level:'error', msg:'Ing+Niht (else) has no prior clause to invert' });
+
+  const body = clauseBody(clause);
+  if (conds.length >= 1 && body.length === 0)
+    issues.push({ level:'error', msg:'Conditional has no body — add a verb' });
+
+  if (verbs.length > 0 && nouns.length === 0)
+    issues.push({ level:'error', msg:'Verb requires at least one noun' });
+
+  if (verbs.length > 1)
+    issues.push({ level:'warning', msg:`${verbs.length} verbs present — only first executes` });
+
+  if (mods.length > 0 && verbs.length === 0)
+    issues.push({ level:'warning', msg:'Modifier has no verb to scale' });
+
+  return issues;
+}
+
+// ── TOOLTIP ──────────────────────────────────────────────────────────
+
+const tip = document.getElementById('tooltip');
+let tipTimer;
+
+function showTip(el, text) {
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => {
+    tip.textContent = text;
+    tip.classList.add('visible');
+    const r  = el.getBoundingClientRect();
+    const tw = tip.offsetWidth;
+    const th = tip.offsetHeight;
+    let left = r.left + r.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    let top  = r.top - th - 8;
+    if (top < 8) top = r.bottom + 8; // flip below if no room above
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }, 260);
+}
+
+function hideTip() {
+  clearTimeout(tipTimer);
+  tip.classList.remove('visible');
+}
+
+// ── RENDER PALETTE ────────────────────────────────────────────────────
+
+function buildPalette(type, containerId) {
+  const cls = CLS_KEY[type];
+  const el  = document.getElementById(containerId);
+  el.innerHTML = '';
+  for (const r of RUNES[type]) {
+    const d = document.createElement('div');
+    d.className = `rune-pill ${cls}`;
+    d.innerHTML = `<span class="rpchar">${r.char}</span><span class="rpname">${r.name}</span>`;
+    d.addEventListener('click', () => addRune(r.char));
+    d.addEventListener('mouseenter', () => showTip(d, r.meaning));
+    d.addEventListener('mouseleave', hideTip);
+    el.appendChild(d);
+  }
+}
+
+// ── RENDER BUILDER ────────────────────────────────────────────────────
+
+function renderBuilder() {
+  const wrap = document.getElementById('clause-wrap');
+  wrap.innerHTML = '';
+
+  clauses.forEach((clause, ci) => {
+    if (ci > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'clause-sep';
+      sep.innerHTML = `<div class="sep-line"></div><div class="sep-glyph">‖ THEN</div><div class="sep-line"></div>`;
+      wrap.appendChild(sep);
+    }
+
+    const issues = lintClause(clause, ci);
+    const hasErr  = issues.some(i => i.level === 'error');
+    const hasWarn = issues.some(i => i.level === 'warning') && !hasErr;
+
+    // ── ROW ──
+    const row = document.createElement('div');
+    row.className = 'clause-row';
+    row.draggable = true;
+    row.dataset.ci = ci;
+
+    row.addEventListener('dragstart', e => {
+      dragFrom = ci;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => row.classList.add('dragging'), 0);
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      document.querySelectorAll('.clause-row').forEach(r => r.classList.remove('drag-over'));
+      dragFrom = null;
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.clause-row').forEach(r => r.classList.remove('drag-over'));
+      if (dragFrom !== null && dragFrom !== ci) row.classList.add('drag-over');
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (dragFrom !== null && dragFrom !== ci) {
+        const moved = clauses.splice(dragFrom, 1)[0];
+        const dest  = ci > dragFrom ? ci - 1 : ci;
+        clauses.splice(dest, 0, moved);
+        if (active === dragFrom) active = dest;
+        else if (active > dragFrom && active <= dest) active--;
+        else if (active < dragFrom && active >= dest) active++;
+        renderBuilder(); renderOutput();
+      }
+    });
+
+    // ── DRAG HANDLE ──
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.textContent = '⠿';
+    handle.title = 'Drag to reorder';
+
+    // ── NUMBER ──
+    const num = document.createElement('div');
+    num.className = 'clause-num';
+    num.textContent = String(ci + 1).padStart(2,'0');
+
+    // ── TRACK ──
+    const track = document.createElement('div');
+    let trackCls = 'clause-track';
+    if (ci === active)  trackCls += ' is-active';
+    if (clause.length === 0) trackCls += ' is-empty';
+    if (hasErr)  trackCls += ' has-error';
+    if (hasWarn) trackCls += ' has-warning';
+    track.className = trackCls;
+    track.setAttribute('data-hint',
+      ci === active ? 'Click runes in the palette to add…' : 'Click to select this clause');
+    track.addEventListener('click', e => { if (e.target === track) selectClause(ci); });
+
+    const hasLeadingCond = clause.length > 0 && MAP[clause[0]]?.cls === 'cond';
+    const negated        = isNegCond(clause);
+    // Arrow goes after pos 0 for plain cond, after pos 1 (Niht) for negated cond
+    const arrowAfter     = hasLeadingCond ? (negated ? 1 : 0) : -1;
+
+    clause.forEach((char, ri) => {
+      const info = MAP[char];
+      if (!info) return;
+      if (ri === arrowAfter + 1 && arrowAfter >= 0) {
+        const arw = document.createElement('span');
+        arw.className = 'arrow-sep';
+        arw.textContent = '→';
+        track.appendChild(arw);
+      }
+      const blk = document.createElement('div');
+      // Niht in negation position gets a special style so it reads as part of the conditional
+      const extraCls = (negated && ri === 1) ? ' rblock-neg' : '';
+      blk.className = `rblock ${info.cls}${extraCls}`;
+      blk.innerHTML = `
+        <span class="rblock-char">${char}</span>
+        <span class="rblock-name">${negated && ri === 1 ? '¬' : info.name}</span>
+        <button class="rblock-del" title="Remove" onclick="removeRune(${ci},${ri})">✕</button>`;
+      blk.addEventListener('click', e => { if (!e.target.classList.contains('rblock-del')) selectClause(ci); });
+      track.appendChild(blk);
+    });
+
+    // ── BUTTONS ──
+    const btns = document.createElement('div');
+    btns.className = 'clause-btns';
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'icn-btn';
+    upBtn.title = 'Move up';
+    upBtn.textContent = '↑';
+    upBtn.disabled = ci === 0;
+    upBtn.addEventListener('click', () => moveClause(ci, -1));
+
+    const downBtn = document.createElement('button');
+    downBtn.className = 'icn-btn';
+    downBtn.title = 'Move down';
+    downBtn.textContent = '↓';
+    downBtn.disabled = ci === clauses.length - 1;
+    downBtn.addEventListener('click', () => moveClause(ci, 1));
+
+    const selBtn = document.createElement('button');
+    selBtn.className = `icn-btn${ci === active ? ' on' : ''}`;
+    selBtn.title = 'Select clause';
+    selBtn.textContent = '✎';
+    selBtn.addEventListener('click', () => selectClause(ci));
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'icn-btn';
+    delBtn.title = 'Delete clause';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => deleteClause(ci));
+
+    btns.append(upBtn, downBtn, selBtn, delBtn);
+    row.append(handle, num, track, btns);
+    wrap.appendChild(row);
+
+    // ── ERROR TAGS (below row) ──
+    if (issues.length > 0) {
+      const errRow = document.createElement('div');
+      errRow.className = 'clause-errors';
+      for (const iss of issues) {
+        const tag = document.createElement('span');
+        tag.className = `err-tag ${iss.level}`;
+        tag.textContent = (iss.level === 'error' ? '✖ ' : '⚠ ') + iss.msg;
+        errRow.appendChild(tag);
+      }
+      wrap.appendChild(errRow);
+    }
+  });
+}
+
+// ── RENDER OUTPUT ─────────────────────────────────────────────────────
+
+function renderOutput() {
+  const disp  = document.getElementById('script-display');
+  const trans = document.getElementById('trans-text');
+  const badge = document.getElementById('error-badge');
+
+  // Count all issues across all clauses
+  const allIssues = clauses.flatMap((c, i) => lintClause(c, i));
+  const errCount  = allIssues.filter(i => i.level === 'error').length;
+  const warnCount = allIssues.filter(i => i.level === 'warning').length;
+
+  if (badge) {
+    if (errCount > 0) {
+      badge.textContent = `${errCount} error${errCount > 1 ? 's' : ''}`;
+      badge.className = 'err-tag error';
+      badge.style.display = '';
+    } else if (warnCount > 0) {
+      badge.textContent = `${warnCount} warning${warnCount > 1 ? 's' : ''}`;
+      badge.className = 'err-tag warning';
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  const parts = clauses.map(clauseToString).filter(s => s.length > 0);
+
+  if (parts.length === 0) {
+    disp.textContent = 'No runes placed yet…';
+    disp.className = 'script-display empty';
+    trans.innerHTML = '<em style="color:var(--text-dim);font-size:0.82rem;">Add runes above to see the translation…</em>';
+    return;
+  }
+
+  disp.textContent = parts.join(' ‖ ');
+  disp.className = 'script-display';
+
+  const rows = clauses.map((c, i) => ({ t: translateClause(c), i })).filter(x => x.t);
+
+  if (rows.length === 0) {
+    trans.innerHTML = '<em style="color:var(--text-dim);font-size:0.82rem;">Add verbs and nouns to generate a translation.</em>';
+    return;
+  }
+
+  trans.innerHTML = rows.map(({ t, i }) => `
+    <div class="trans-clause">
+      <span class="trans-num">§${i+1}</span>
+      <span>${t}</span>
+    </div>`).join('');
+}
+
+function clauseToString(clause) {
+  if (clause.length === 0) return '';
+  const hasCond  = MAP[clause[0]]?.cls === 'cond';
+  const negated  = isNegCond(clause);
+  // Arrow position: after index 0 (normal) or after index 1 (negated)
+  const arrowAt  = hasCond ? (negated ? 2 : 1) : -1;
+  return clause.map((c, i) => i === arrowAt ? '→' + c : c).join('');
+}
+
+function translateClause(clause) {
+  if (clause.length === 0) return null;
+  const parts   = clause.map(c => MAP[c]).filter(Boolean);
+  const negated = isNegCond(clause);
+
+  let cond = null;
+  let body = clauseBody(clause);
+
+  if (parts[0]?.cls === 'cond') cond = parts[0];
+
+  const nouns = body.filter(p => p.cls === 'noun');
+  const verbs = body.filter(p => p.cls === 'verb');
+  const mods  = body.filter(p => p.cls === 'mod');
+
+  let condStr = '';
+  if (cond) {
+    const key    = negated ? cond.name + '+neg' : cond.name;
+    const phrase = COND_PHRASE[key] || (negated ? 'NOT ' + cond.name : cond.name);
+    condStr = `<span class="trans-cond">${phrase} —</span> `;
+  }
+
+  let actionStr = '';
+  if (verbs.length > 0) {
+    const n1 = nouns[0] ? NOUN_PHRASE[nouns[0].name] || nouns[0].name : null;
+    const n2 = nouns[1] ? NOUN_PHRASE[nouns[1].name] || nouns[1].name : null;
+    const fn = VERB_TEMPLATE[verbs[0].name];
+    actionStr = fn ? fn(n1 || '???', n2) : `${verbs[0].name} ${n1 || '???'}${n2 ? ' → ' + n2 : ''}`;
+    if (mods.length > 0) actionStr += ', ' + mods.map(m => MOD_PHRASE[m.name] || m.name).join(', ');
+  } else if (body.length > 0) {
+    actionStr = body.map(p => p.name).join(' → ');
+  } else if (cond) {
+    actionStr = '<em style="color:var(--text-dim);">[no body — add verbs and nouns]</em>';
+  } else {
+    return null;
+  }
+
+  return condStr + actionStr;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────
+
+function moveClause(ci, dir) {
+  const target = ci + dir;
+  if (target < 0 || target >= clauses.length) return;
+  [clauses[ci], clauses[target]] = [clauses[target], clauses[ci]];
+  if (active === ci) active = target;
+  else if (active === target) active = ci;
+  renderBuilder(); renderOutput();
+}
+
+function addRune(char)      { clauses[active].push(char); renderBuilder(); renderOutput(); }
+function removeRune(ci, ri) { clauses[ci].splice(ri, 1); renderBuilder(); renderOutput(); }
+function addClause()        { clauses.push([]); active = clauses.length - 1; renderBuilder(); renderOutput(); }
+function selectClause(ci)   { active = ci; renderBuilder(); }
+
+function deleteClause(ci) {
+  if (clauses.length === 1) { clauses[0] = []; active = 0; }
+  else { clauses.splice(ci, 1); if (active >= clauses.length) active = clauses.length - 1; }
+  renderBuilder(); renderOutput();
+}
+
+function clearAll() { clauses = [[]]; active = 0; renderBuilder(); renderOutput(); }
+
+function copyScript() {
+  const el = document.getElementById('script-display');
+  if (!el.classList.contains('empty'))
+    navigator.clipboard.writeText(el.textContent).then(() => toast('Script copied'));
+}
+
+function copyTrans() {
+  const rows = Array.from(document.querySelectorAll('.trans-clause'))
+    .map(el => el.innerText.trim()).join('\n');
+  if (rows) navigator.clipboard.writeText(rows).then(() => toast('Translation copied'));
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+
+buildPalette('nouns',        'pn');
+buildPalette('verbs',        'pv');
+buildPalette('conditionals', 'pc');
+buildPalette('modifiers',    'pm');
+renderBuilder();
+renderOutput();
+</script>
+</body>
+</html>
