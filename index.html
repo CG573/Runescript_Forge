@@ -608,22 +608,22 @@ const RUNES = {
     { char:'ᚷ', name:'Gāst', meaning:'Target struck by projectile' },
     { char:'ᚫ', name:'Āna',  meaning:'Aimed-at target / target in reticle (pre-hit)' },
     { char:'ᛟ', name:'Ōs',   meaning:'Result / return value of the prior verb' },
-    { char:'ᛠ', name:'Tācn', meaning:'The marked entity / bearer of the active Bind mark' },
+    { char:'ᛠ', name:'Tācn', meaning:'The marked entity / bearer of the active Wrītan mark' },
   ],
   verbs: [
     { char:'ᛞ', name:'Drān', meaning:'Draw / pull toward' },
     { char:'ᚠ', name:'Fær',  meaning:'Transfer / move A to B' },
     { char:'ᚱ', name:'Rād',  meaning:'Read / sense / detect' },
-    { char:'ᛈ', name:'Bind', meaning:'Attach / mark / flag for later' },
+    { char:'ᛈ', name:'Wrītan', meaning:'Attach / mark / flag — inscribes a persistent mark onto the target noun' },
     { char:'ᛖ', name:'Ec',   meaning:'Amplify / multiply' },
     { char:'ᛏ', name:'Tām',  meaning:'Suppress / dampen / nerf' },
   ],
   conditionals: [
-    { char:'ᚩ', name:'On-hit', meaning:'When projectile contacts a target' },
-    { char:'ᚳ', name:'Crit',   meaning:'When striking a vital zone' },
-    { char:'ᚪ', name:'Aim',    meaning:'While wielder is actively sighting' },
+    { char:'ᚩ', name:'Hrīnan', meaning:'When the projectile contacts a target (on hit)' },
+    { char:'ᚳ', name:'Þyrel',  meaning:'When the projectile strikes a vital zone (critical hit)' },
+    { char:'ᚪ', name:'Sēon',   meaning:'While the wielder is actively sighting' },
     { char:'ᛝ', name:'Ing',    meaning:'If the prior clause already fired' },
-    { char:'ᚸ', name:'Mǣrk',  meaning:'If there is an active Bind mark in this activation cycle' },
+    { char:'ᚸ', name:'Mǣrk',  meaning:'If there is an active Wrītan mark in this activation cycle' },
   ],
   modifiers: [
     { char:'ᛁ', name:'Lyt',   meaning:'Small / fractional (~25%)' },
@@ -642,23 +642,23 @@ for (const [type, arr] of Object.entries(RUNES)) {
 }
 
 const COND_PHRASE = {
-  'On-hit':     'When the projectile strikes a target',
-  'Crit':       'On a critical strike',
-  'Aim':        'While actively sighting',
+  'Hrīnan':     'When the projectile strikes a target',
+  'Þyrel':      'On a critical strike',
+  'Sēon':       'While actively sighting',
   'Ing':        'If the prior clause succeeded',
-  'Mǣrk':      'If there is an active Bind mark',
-  'On-hit+neg': 'If the projectile did NOT strike a target',
-  'Crit+neg':   'If the strike was NOT critical',
-  'Aim+neg':    'If the wielder is NOT sighting',
+  'Mǣrk':      'If there is an active mark',
+  'Hrīnan+neg': 'If the projectile did NOT strike a target',
+  'Þyrel+neg':  'If the strike was NOT critical',
+  'Sēon+neg':   'If the wielder is NOT sighting',
   'Ing+neg':    'If the prior clause did NOT succeed (else)',
-  'Mǣrk+neg':  'If there is NO active Bind mark',
+  'Mǣrk+neg':  'If there is NO active mark',
 };
 
 const VERB_TEMPLATE = {
   'Drān': (n1, n2) => `draw ${n1}${n2 ? ` from ${n2}` : ''}`,
   'Fær':  (n1, n2) => `transfer ${n1}${n2 ? ` to ${n2}` : ''}`,
   'Rād':  (n1, n2) => `read / sense ${n1}${n2 ? ` of ${n2}` : ''}`,
-  'Bind': (n1, n2) => `mark ${n2 || n1}${n2 ? ` with [${n1}]` : ''}`,
+  'Wrītan': (n1, n2) => `mark ${n2 || n1}${n2 ? ` with [${n1}]` : ''}`,
   'Ec':   (n1, n2) => `amplify ${n1}${n2 ? ` toward ${n2}` : ''}`,
   'Tām':  (n1, n2) => `suppress ${n1}${n2 ? ` affecting ${n2}` : ''}`,
 };
